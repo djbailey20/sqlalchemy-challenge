@@ -95,7 +95,7 @@ def tobs():
 
 @app.route("/api/v1.0/<start>", defaults={'end': None})
 @app.route("/api/v1.0/<start>/<end>")
-def dates_start(start, end):
+def dates(start, end):
     # Create our session (link) from Python to the DB
     if end == None:
         session = Session(engine)
