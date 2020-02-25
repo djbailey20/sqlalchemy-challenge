@@ -93,29 +93,39 @@ def tobs():
     return jsonify(tobs_ls)
 
 
-@app.route("/api/v1.0/<start>")
-def dates_start(start):
-    # Create our session (link) from Python to the DB
-    session = Session(engine)
-    start = dt.datetime.strptime(start, "%Y-%m-%d").date()
-    results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(
-        Measurement.tobs)).filter(Measurement.date >= start-dt.timedelta(days=365)).all()
-
-    session.close()
-    return jsonify(results)
-
-
+@app.route("/api/v1.0/<start>", defaults={'end': None})
 @app.route("/api/v1.0/<start>/<end>")
-def dates_start_end(start, end):
+def dates_start(start, end):
     # Create our session (link) from Python to the DB
-    session = Session(engine)
-    start = dt.datetime.strptime(start, "%Y-%m-%d").date()
-    end = dt.datetime.strptime(end, "%Y-%m-%d").date()
-    results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(
-        Measurement.tobs)).filter(Measurement.date >= start-dt.timedelta(days=365)).filter(Measurement.date <= end).all()
+    if end == None:
+        session = Session(engine)
+        start = dt.datetime.strptime(start, "%Y-%m-%d").date()
+        results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(
+            Measurement.tobs)).filter(Measurement.date >= start-dt.timedelta(days=365)).all()
+
+        session.close()
+    else:
+        session = Session(engine)
+        start = dt.datetime.strptime(start, "%Y-%m-%d").date()
+        end = dt.datetime.strptime(end, "%Y-%m-%d").date()
+        results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(
+            Measurement.tobs)).filter(Measurement.date >= start-dt.timedelta(days=365)).filter(Measurement.date <= end).all()
 
     session.close()
     return jsonify(results)
+
+
+# @app.route("/api/v1.0/<start>/<end>")
+# def dates_start_end(start, end):
+#     # Create our session (link) from Python to the DB
+#     session = Session(engine)
+#     start = dt.datetime.strptime(start, "%Y-%m-%d").date()
+#     end = dt.datetime.strptime(end, "%Y-%m-%d").date()
+#     results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(
+#         Measurement.tobs)).filter(Measurement.date >= start-dt.timedelta(days=365)).filter(Measurement.date <= end).all()
+
+#     session.close()
+#     return jsonify(results)
 
 
 if __name__ == '__main__':
