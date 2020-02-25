@@ -101,7 +101,7 @@ def dates_start(start, end):
         session = Session(engine)
         start = dt.datetime.strptime(start, "%Y-%m-%d").date()
         results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(
-            Measurement.tobs)).filter(Measurement.date >= start-dt.timedelta(days=365)).all()
+            Measurement.tobs)).filter(Measurement.date >= start).all()
 
         session.close()
     else:
@@ -109,9 +109,9 @@ def dates_start(start, end):
         start = dt.datetime.strptime(start, "%Y-%m-%d").date()
         end = dt.datetime.strptime(end, "%Y-%m-%d").date()
         results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(
-            Measurement.tobs)).filter(Measurement.date >= start-dt.timedelta(days=365)).filter(Measurement.date <= end).all()
+            Measurement.tobs)).filter(Measurement.date >= start).filter(Measurement.date <= end).all()
 
-    session.close()
+        session.close()
     return jsonify(results)
 
 
