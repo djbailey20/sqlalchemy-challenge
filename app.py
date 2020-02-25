@@ -78,10 +78,13 @@ def stations():
 def tobs():
     # Create our session (link) from Python to the DB
     session = Session(engine)
-
+    latest = session.query(Measurement.date).order_by(
+        Measurement.date.desc()).first()
+    latest = latest[0]
+    latest = dt.datetime.strptime(latest, '%Y-%m-%d').date()
     """Return a list of all passenger names"""
     results = session.query(Measurement.date, Measurement.tobs).filter(
-        Measurement.date > dt.datetime(2017, 8, 23)-dt.timedelta(days=366)).all()
+        Measurement.date >= latest-dt.timedelta(days=365)).all()
 
     session.close()
     tobs_ls = []
@@ -94,9 +97,9 @@ def tobs():
 def dates_start(start):
     # Create our session (link) from Python to the DB
     session = Session(engine)
-    start = dt.datetime.strptime(start, "%Y-%m-%d")
+    start = dt.datetime.strptime(start, "%Y-%m-%d").date()
     results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(
-        Measurement.tobs)).filter(Measurement.date > start-dt.timedelta(days=366)).all()
+        Measurement.tobs)).filter(Measurement.date >= start-dt.timedelta(days=365)).all()
 
     session.close()
     return jsonify(results)
@@ -106,10 +109,10 @@ def dates_start(start):
 def dates_start_end(start, end):
     # Create our session (link) from Python to the DB
     session = Session(engine)
-    start = dt.datetime.strptime(start, "%Y-%m-%d")
-    end = dt.datetime.strptime(end, "%Y-%m-%d")
+    start = dt.datetime.strptime(start, "%Y-%m-%d").date()
+    end = dt.datetime.strptime(end, "%Y-%m-%d").date()
     results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(
-        Measurement.tobs)).filter(Measurement.date > start-dt.timedelta(days=366)).filter(Measurement.date <= end).all()
+        Measurement.tobs)).filter(Measurement.date >= start-dt.timedelta(days=365)).filter(Measurement.date <= end).all()
 
     session.close()
     return jsonify(results)
